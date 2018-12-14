@@ -100,7 +100,7 @@ class BusinessDAO {
     async getBusinesses() {
         const cursor = this.collection.find({});
         try {
-            const docs = cursor.toArray()
+            const docs = await cursor.toArray()
             return docs
         } catch (err) {
             throw new Error(err)
