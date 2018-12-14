@@ -36,16 +36,37 @@ app.use(bodyParser.json({ type: "application/vnd.api+json" }));
 app.use(upload.array()); 
 app.set('port', port);
 
-require('./controllers/data-controller')(app);
+const MongoClient = require('mongodb').MongoClient;
+const assert = require('assert');
+const uri = process.env.MONGODB_CONNECT_STRING || 'mongodb://localhost:27017/localbusinesses';
 
-// Listen on port 3000 or assigned port
-const server = app.listen(app.get('port'), () =>  console.log(`Did you hear that noise R2-${app.get('port')}?`));
+const client = new MongoClient(uri, {useNewUrlParser: true});
+let server;
+client.connect((err, client) => {
+    "use strict";
+    //test connection for errors, will stop app if Mongo connection is down on load
+    assert.equal(null, err);
+    assert.ok(client !== null);
+    console.log("Somewhere a SQLFairy lost it's wings...Mongo Pokemon Evolved!");
+
+    const dbName = 'localbusinesses';
+    const db = client.db(dbName);
+
+    require('./controllers/data-controller')(app, db);
+
+    // Listen on port 3000 or assigned port
+    server = app.listen(app.get('port'), () =>  console.log(`Did you hear that noise R2-${app.get('port')}?`));
+
+});
 
 const gracefulShutdown = () => {
-    console.log("Received kill signal, shutting down gracefully.");
+    console.log("\nReceived kill signal, shutting down gracefully.");
     server.close(() => {
-        console.log("Closed out remaining connections.");
-        process.exit(1)
+        client.close((err)=>{
+            if (err) console.error({ err })
+            console.log("Closed out remaining connections.");
+            process.exit(1)
+        });
     });
     
      // if after 

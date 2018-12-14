@@ -1,10 +1,11 @@
-var mongodb = require('mongodb');
+const mongodb = require('mongodb');
+const moment = require('moment')
 "use strict";
 class BusinessDAO {
 
-    constructor(db, collection) {
+    constructor(db) {
         this.db = db;
-        this.collection = collection;
+        this.collection = db.collection('businesses');
         this.indexes = [ 
             { 
                 key: { 
@@ -24,33 +25,44 @@ class BusinessDAO {
                     trade_name_of_business: 1 
                 }, 
                 name: "BusinessName" 
-            } 
+            } , {
+                key: {
+                    business_classification: 1
+                },
+                name: "BusinessCategory"
+            }
         ]
+        this.createIndexes();
     }
 
     async createIndexes() {
         try {
             const result = await this.collection.createIndexes(this.indexes)
-            console.log({ result })
+            console.log({ createIndexes: result })
         } catch (err) {
             console.log("Create Index Error")
             console.error({ err })
         }
     }
     async insertBusinesses(records){
+        const Timestamp = mongodb.Timestamp;
+        const dateAdded  = new Timestamp(moment().format('x'))
         //transform record
         let businesses = records.map(record=>{
+            const discoveryDate = new Timestamp(moment(record.discovery_date).format('x'))
             record.govId = ("000" + record.id).slice(-5)
             record.called = false
             record.calledDate = null
             record.notes = ""
+            record.dateAdded = dateAdded
+            record.discovery_date = discoveryDate
             delete record.id
             return record
         })
 
         let docs = []
         try {
-            docs = await this.getBusinesses()
+            docs = await this.getAllBusinesses()
         } catch (err) {
             console.log('Unable to retrieve docs')
             console.error({err})
@@ -78,7 +90,7 @@ class BusinessDAO {
             console.log({ insertedCount: 0 })
         }
 
-        return { success: true, businesses: await this.getBusinesses() }
+        return { success: true, businesses: await this.getAllBusinesses() }
     }
 
     async removeBusiness(record) {
@@ -89,15 +101,19 @@ class BusinessDAO {
             console.error({err})
             return { success: false, err}
         }
-        return { success: true, businesses: await this.getBusinesses() }
+        return { success: true, businesses: await this.getAllBusinesses() }
     }
 
     async updateBusiness(record) {
         //needs logic
-        return { success: true, businesses: await this.getBusinesses() }
+        return { success: true, businesses: await this.getAllBusinesses() }
     }
 
-    async getBusinesses() {
+    async getfilteredBusinesses(type, start= 0, max = 5000, offset = 0) {
+
+    }
+
+    async getAllBusinesses() {
         const cursor = this.collection.find({});
         try {
             const docs = await cursor.toArray()
