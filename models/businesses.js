@@ -38,18 +38,17 @@ class BusinessDAO {
     async createIndexes() {
         try {
             const result = await this.collection.createIndexes(this.indexes)
-            console.log({ createIndexes: result })
+            console.log({ CreateIndexesResult: result })
         } catch (err) {
             console.log("Create Index Error")
             console.error({ err })
         }
     }
     async insertBusinesses(records){
-        const Timestamp = mongodb.Timestamp;
-        const dateAdded  = new Timestamp(moment().format('x'))
+        const dateAdded  = moment().format('x')
         //transform record
         let businesses = records.map(record=>{
-            const discoveryDate = new Timestamp(moment(record.discovery_date).format('x'))
+            const discoveryDate = moment(record.discovery_date).format('x')
             record.govId = ("000" + record.id).slice(-5)
             record.called = false
             record.calledDate = null
