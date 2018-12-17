@@ -3,42 +3,40 @@ const moment = require('moment');
 
 "use strict";
 class User {
-    constructor(username, password) {
+    constructor({displayName="", image="", id, emails=[{value:""}]}) {
         if (!(this instanceof User)) {
-            return new User(username, password)
+            return new User(profile)
         }
-        this.profile = {
-            username,
-            password,
-            fullName: '',
-            profilePicUrl: '',
-            dateAdded: moment().format('x'),
-            subscriptionStatus: 'basic',
-            twitter: '',
-            linkedIn: '',
-            facebook: '',
-            businessProfile: {
-                businessName: '',
-                addresses: [{
-                    address1: '',
-                    address2: '',
-                    city: '',
+        this.fullName = displayName
+        this.profilePicUrl=image.url
+        this.dateAdded=moment().format('x')
+        this.subscriptionStatus='basic'
+        this.googleId=id
+        this.email=emails[0].value
+        this.twitterProfile={}
+        this.linkedInProfile={}
+        this.facebookProfile={}
+        this.businessProfile={
+                businessName:'',
+                addresses:[{
+                    address1:'',
+                    address2:'',
+                    city:'',
                     state:'',
-                    country: '',
-                    zipCode: ''
+                    country:'',
+                    zipCode:''
                 }],
-                emailAddress: '',
-                website: '',
-                phone: '',
-                logoUrl: '',
-                contactEmails: [],
-                twitter: '',
-                linkedIn: '',
-                facebook: ''
-            },
-            verified: false,
-            contactedBusinesses: []
-        }
+                emailAddress:'',
+                website:'',
+                phone:'',
+                logoUrl:'',
+                contactEmails:[],
+                twitter:'',
+                linkedIn:'',
+                facebook:''
+            }
+        this.verified=emails[0].value ? true : false
+        this.contactedBusinesses=[];
     }
 }
 
@@ -53,7 +51,7 @@ class UsersDAO {
         this.indexes = [ 
             { 
                 key: { 
-                    email_address:1
+                    googleId:1
                 }, 
                 name: "UserName", 
                 unique: true, 
@@ -70,6 +68,7 @@ class UsersDAO {
                 name: "DateAddedToDB"
             }
         ]
+        this.createIndexes();
     }
 
     async createIndexes() {
@@ -79,6 +78,26 @@ class UsersDAO {
         } catch (err) {
             console.log("Create Index Error")
             console.error({ err })
+        }
+    }
+
+    async getUser(query={}) {
+        try {
+            const user = await this.collection.findOne(query)
+            return user;
+        } catch(err) {
+            throw new Error(err)
+        }
+    }
+
+    async addUser({_json: profile}){
+        const user = new User(profile)
+        try {
+            const {insertedId} = await this.collection.insertOne(user, {fullResult: true})
+            console.log({insertedId})
+            return insertedId
+        } catch(err) {
+            throw new Error(err)
         }
     }
 

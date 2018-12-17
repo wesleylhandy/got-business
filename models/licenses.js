@@ -70,7 +70,7 @@ class LicensesDAO {
         //transform record
         let businesses = records.map(record=>{
             const discoveryDate = moment(record.discovery_date).format('x')
-            record.govId = ("00000" + record.id).slice(-6)
+            record.govId = "VB" + ("00000" + record.id).slice(-6)
             record.dateAdded = dateAdded
             record.discovery_date = discoveryDate
             delete record.id
