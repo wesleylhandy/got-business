@@ -47,12 +47,15 @@ client.connect((err, client) => {
     //test connection for errors, will stop app if Mongo connection is down on load
     assert.equal(null, err);
     assert.ok(client !== null);
-    console.log("Somewhere a SQLFairy lost it's wings...Mongo Pokémon Evolved!");
+    console.log("Somewhere a SQLFairy lost it's wings...Mongo Pokémon evolved.");
 
     const dbName = 'localbusinesses';
     const db = client.db(dbName);
 
-    require('./controllers/data-controller')(app, db);
+    const LicensesDAO = require('./models/licenses.js');
+    const licensesDAO = new LicensesDAO(db)
+
+    require('./controllers/data-controller')(app, licensesDAO);
 
     // Listen on port 3000 or assigned port
     server = app.listen(app.get('port'), () =>  console.log(`\nAttention citizens, tune to channel ${app.get('port')}...Express Pokémon evolved.\n`));

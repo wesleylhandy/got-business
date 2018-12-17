@@ -1,32 +1,24 @@
 const router = require('express').Router();
 const asyncMiddleware = require('../utils/async-middleware');
-const callApi = require('../utils/fetch-helpers')
 
-const BusinessDAO = require('../models/businesses.js');
-
-module.exports = (app, db) => {
-
-    const businesses = new BusinessDAO(db);
+module.exports = (app, licensesDAO) => {
 
     router.get("/", asyncMiddleware(async (req, res, next) => {
-        const options = {
-            method: "GET",
-            headers: {
-                "X-APP-Token": process.env.API_KEY,
-                "Content-Type": 'application/json',
+       
+        try {
+            const { success, businesses, err } = await licensesDAO.getAllBusinesses();
+            if (success) {
+                return res.json(businesses)
             }
+            res.statusCode = 500
+            res.json(err)
+        } catch (err) {
+            res.statusCode = 500
+            res.json(err)
         }
-        const uri = process.env.VB_DATA_URI
-        const businessData  = await callApi(uri, options)
-        const result = await businesses.insertBusinesses(businessData)
-        if (result.success) {
-            return res.json(result.businesses)
-        }
-        res.statusCode = 500
-        res.json(result)
+
     }));
 
     app.use('/data', router);
     
-
 }

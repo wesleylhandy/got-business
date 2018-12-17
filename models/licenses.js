@@ -1,11 +1,17 @@
 const mongodb = require('mongodb');
 const moment = require('moment')
+const getNewBusinessLicenses = require('../utils/get-new-business-licenses')
+
 "use strict";
-class BusinessDAO {
+class LicensesDAO {
 
     constructor(db) {
+        if (!(this instanceof LicensesDAO)) {
+            return new LicensesDAO(db)
+        }
         this.db = db;
-        this.collection = db.collection('businesses');
+        this.collection = db.collection('licenses');
+        this.lastUpdate = 0;
         this.indexes = [ 
             { 
                 key: { 
@@ -30,29 +36,41 @@ class BusinessDAO {
                     business_classification: 1
                 },
                 name: "BusinessCategory"
+            }, {
+                key: { 
+                    dateAdded: -1 
+                }, 
+                name: "DateAddedToDB"
             }
         ]
         this.createIndexes();
+        this.getLastUpdateTimestamp();
+    }
+
+    shouldGetNewLicenses(lastUpdate = this.lastUpdate) {
+        const previousTimestamp = moment(lastUpdate)
+        const currentTimestamp = moment()
+        const elapsed = currentTimestamp.diff(previousTimestamp, 'days')
+        console.log({previousTimestamp: previousTimestamp.format('MMM Do YYYY, hh:mm:ss a'), currentTimestamp: currentTimestamp.format('MMM Do YYYY, hh:mm:ss a'), daysElapsed: elapsed})
+        return elapsed
     }
 
     async createIndexes() {
         try {
             const result = await this.collection.createIndexes(this.indexes)
-            console.log({ CreateIndexesResult: result })
+            console.log({ Licenses: { CreateIndexesResult: result } })
         } catch (err) {
             console.log("Create Index Error")
             console.error({ err })
         }
     }
+
     async insertBusinesses(records){
         const dateAdded  = moment().format('x')
         //transform record
         let businesses = records.map(record=>{
             const discoveryDate = moment(record.discovery_date).format('x')
-            record.govId = ("000" + record.id).slice(-5)
-            record.called = false
-            record.calledDate = null
-            record.notes = ""
+            record.govId = ("00000" + record.id).slice(-6)
             record.dateAdded = dateAdded
             record.discovery_date = discoveryDate
             delete record.id
@@ -61,7 +79,14 @@ class BusinessDAO {
 
         let docs = []
         try {
-            docs = await this.getAllBusinesses()
+            const { businesses, err } = await this.getAllBusinesses()
+            docs = businesses
+            console.log({"CurrentBusinesses": docs.length})
+            if (err) {
+                console.log('Unable to retrieve docs')
+                console.error({err})
+                return { success: false, err }
+            }
         } catch (err) {
             console.log('Unable to retrieve docs')
             console.error({err})
@@ -80,6 +105,7 @@ class BusinessDAO {
             try {
                 const {result} = await this.collection.insertMany(businesses)
                 console.log({ insertedCount: result.n })
+                this.lastUpdate = dateAdded
             } catch (err) {
                 console.log("Insert Many Error")
                 console.error({ err })
@@ -89,7 +115,7 @@ class BusinessDAO {
             console.log({ insertedCount: 0 })
         }
 
-        return { success: true, businesses: await this.getAllBusinesses() }
+        return { success: true }
     }
 
     async removeBusiness(record) {
@@ -100,12 +126,12 @@ class BusinessDAO {
             console.error({err})
             return { success: false, err}
         }
-        return { success: true, businesses: await this.getAllBusinesses() }
+        return { success: true }
     }
 
     async updateBusiness(record) {
         //needs logic
-        return { success: true, businesses: await this.getAllBusinesses() }
+        return { success: true }
     }
 
     async getfilteredBusinesses(type, start= 0, max = 5000, offset = 0) {
@@ -116,9 +142,9 @@ class BusinessDAO {
         const cursor = this.collection.find({});
         try {
             const docs = await cursor.toArray()
-            return docs
+            return { success: true, businesses: docs }
         } catch (err) {
-            throw new Error(err)
+            return { success: false, err }
         }
     }
     async getBusinessCount(){
@@ -129,6 +155,20 @@ class BusinessDAO {
             throw new Error(err)
         }
     }
+
+    async getLastUpdateTimestamp() {
+        const cursor = await this.collection.find({}).sort({dateAdded: -1}).limit(1)
+        try {
+            const docs = await cursor.toArray()
+            const lastUpdate = docs[0]
+            this.lastUpdate = lastUpdate
+            if (this.shouldGetNewLicenses(lastUpdate)) {
+                getNewBusinessLicenses(licensesDAO)
+            } 
+        } catch (err) {
+            return { success: false, err }
+        }
+    }
 }
 
-module.exports = BusinessDAO;
+module.exports = LicensesDAO;
