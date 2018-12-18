@@ -79,8 +79,9 @@ client.connect((err, client) => {
     const UsersDAO = require('./models/users.js');
     const usersDAO = new UsersDAO(db)
 
-    require('./utils/initGoogleStrategy')(usersDAO)
-    require('./utils/initLocalStrategy')(usersDAO)
+    // require('./strategies/initLinkedInStrategy')(usersDAO)
+    require('./strategies/initGoogleStrategy')(usersDAO)
+    require('./strategies/initLocalStrategy')(usersDAO)
 
     passport.serializeUser((user, done) => {
         done(null, user);

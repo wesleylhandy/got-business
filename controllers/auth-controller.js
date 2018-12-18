@@ -27,6 +27,18 @@ module.exports = ( app, usersDAO ) => {
         }
     })
 
+    // router.get("/linkedin", passport.authenticate('linkedin'));
+
+    // router.get('/linkedin/callback', passport.authenticate('linkedin'), (req, res, next) => {
+    //     console.log(JSON.stringify(req, null, 2))
+    //     if (req.user) {
+    //         res.json({id:req.user})
+    //     } else {
+    //         res.statusCode = req.statusCode;
+    //         res.json({ id: "", message: req.statusMessage });
+    //     }
+    // })
+
     router.post('/login', passport.authenticate('local-login'), (req, res, next) => {
         if (req.user) {
             res.json({id:req.user})
