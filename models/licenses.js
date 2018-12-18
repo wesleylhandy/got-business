@@ -16,7 +16,7 @@ class LicensesDAO {
             { 
                 key: { 
                     govId:1, 
-                    trade_name_of_business: 1 
+                    trade_name_of_business: 1
                 }, 
                 name: "GovID", 
                 unique: true, 
@@ -26,16 +26,12 @@ class LicensesDAO {
                     geocoded_column:"2dsphere" 
                 }, 
                 name: "GeoLocation" 
-            }, { 
-                key: { 
-                    trade_name_of_business: 1 
-                }, 
-                name: "BusinessName" 
-            } , {
+            }, {
                 key: {
-                    business_classification: 1
+                    business_classification: "text",
                 },
-                name: "BusinessCategory"
+                "name": "BusinessCategory",
+                "background":true
             }, {
                 key: { 
                     dateAdded: -1 
@@ -47,7 +43,7 @@ class LicensesDAO {
         this.getLastUpdateTimestamp();
     }
 
-    shouldGetNewLicenses(lastUpdate = this.lastUpdate) {
+    shouldGetNewLicenses(lastUpdate) {
         const previousTimestamp = moment(lastUpdate)
         const currentTimestamp = moment()
         const elapsed = currentTimestamp.diff(previousTimestamp, 'days')
@@ -61,7 +57,7 @@ class LicensesDAO {
             console.log({ Licenses: { CreateIndexesResult: result } })
         } catch (err) {
             console.log("Create Index Error")
-            console.error({ err })
+            console.error(JSON.stringify(err, null, 2))
         }
     }
 
@@ -70,9 +66,11 @@ class LicensesDAO {
         //transform record
         let businesses = records.map(record=>{
             const discoveryDate = moment(record.discovery_date).format('x')
-            record.govId = "VB" + ("00000" + record.id).slice(-6)
+            const year = moment(discoveryDate).format("YYYY")
+            record.govId = "VB" + year + ("00000" + record.id).slice(-6)
             record.dateAdded = dateAdded
             record.discovery_date = discoveryDate
+            record.google_verified = false
             delete record.id
             return record
         })
@@ -84,12 +82,12 @@ class LicensesDAO {
             console.log({"CurrentBusinesses": docs.length})
             if (err) {
                 console.log('Unable to retrieve docs')
-                console.error({err})
+                console.error(JSON.stringify(err, null, 2))
                 return { success: false, err }
             }
         } catch (err) {
             console.log('Unable to retrieve docs')
-            console.error({err})
+            console.error(JSON.stringify(err, null, 2))
             return { success: false, err }
         }
 
@@ -108,7 +106,7 @@ class LicensesDAO {
                 this.lastUpdate = dateAdded
             } catch (err) {
                 console.log("Insert Many Error")
-                console.error({ err })
+                console.error(JSON.stringify(err, null, 2))
                 return { success: false,  err }
             }
         } else {
@@ -123,7 +121,7 @@ class LicensesDAO {
             this.collection.deleteOne({ record })
         } catch (err) {
             console.log("Delete One Error")
-            console.error({err})
+            console.error(JSON.stringify(err, null, 2))
             return { success: false, err}
         }
         return { success: true }
@@ -134,8 +132,16 @@ class LicensesDAO {
         return { success: true }
     }
 
-    async getfilteredBusinesses(type, start= 0, max = 5000, offset = 0) {
-
+    async getfilteredBusinesses(category="", start = 0, step = 5000) {
+        const query = category ? { $text: { $search: category, $caseSensitive: false } } : {}
+        console.log({query})
+        const cursor = this.collection.find(query, { skip: +start, limit: +step });
+        try {
+            const docs = await cursor.toArray()
+            return { success: true, businesses: docs }
+        } catch (err) {
+            return { success: false, err }
+        }
     }
 
     async getAllBusinesses() {

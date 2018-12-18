@@ -1,12 +1,16 @@
 const mongodb = require('mongodb');
 const moment = require('moment');
+const bcrypt = require('bcrypt');
+
+const saltFactor = 10;
 
 "use strict";
 class User {
-    constructor({displayName="", image="", id, emails=[{value:""}]}) {
+    constructor({username="", displayName="", image="", id="", emails=[{value:""}]}) {
         if (!(this instanceof User)) {
             return new User(profile)
         }
+        this.username = username || emails[0].value
         this.fullName = displayName
         this.profilePicUrl=image.url
         this.dateAdded=moment().format('x')
@@ -38,6 +42,24 @@ class User {
         this.verified=emails[0].value ? true : false
         this.contactedBusinesses=[];
     }
+
+    static async saltPassword(password) {
+        try {
+            const salt = await bcrypt.genSalt(saltFactor)
+            try {
+                const hash = bcrypt.hash(password, salt)
+                return hash
+            } catch (err) {
+                console.log("Unable to create Hash")
+                console.error(JSON.stringify(err, null, 2))
+                return password
+            }
+        } catch (err) {
+            console.log("Unable to create Salt")
+            console.error(JSON.stringify(err, null, 2))
+            return password
+        }
+    }
 }
 
 class UsersDAO {
@@ -52,6 +74,13 @@ class UsersDAO {
             { 
                 key: { 
                     googleId:1
+                }, 
+                name: "GoogleId", 
+                unique: true, 
+                background: true 
+            }, { 
+                key: { 
+                    username:1
                 }, 
                 name: "UserName", 
                 unique: true, 
@@ -77,7 +106,7 @@ class UsersDAO {
             console.log({ Users: { CreateIndexesResult: result } })
         } catch (err) {
             console.log("Create Index Error")
-            console.error({ err })
+            console.error(JSON.stringify(err, null, 2))
         }
     }
 
@@ -90,12 +119,37 @@ class UsersDAO {
         }
     }
 
-    async addUser({_json: profile}){
+    async addGoogleUser({_json: profile}){
         const user = new User(profile)
         try {
             const {insertedId} = await this.collection.insertOne(user, {fullResult: true})
             console.log({insertedId})
             return insertedId
+        } catch(err) {
+            throw new Error(err)
+        }
+    }
+
+    async addLocalUser(username, password) {
+        const user = new User({username})
+        try {
+            user.password = await User.saltPassword(password)
+            try {
+                const {insertedId} = await this.collection.insertOne(user, {fullResult: true})
+                console.log({insertedId})
+                return insertedId
+            } catch(err) {
+                
+            }
+        } catch(err) {
+            throw new Error(err)
+        }
+    }
+
+    async comparePassword(candidatePassword, dbPassword) {
+        try {
+            const isMatch = bcrypt.compare(candidatePassword, dbPassword)
+            return isMatch
         } catch(err) {
             throw new Error(err)
         }

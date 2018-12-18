@@ -1,16 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
-function initGoogleStrategy(userDAO) {
-
-    passport.serializeUser((user, done) => {
-        done(null, user);
-    });
-
-    passport.deserializeUser(async (userID, done) => {
-        const foundUser = await userDAO.getUser({id: userID})
-        done(null, foundUser);
-    });
+function initGoogleStrategy(usersDAO) {
 
     passport.use(
         new GoogleStrategy(
@@ -22,22 +13,22 @@ function initGoogleStrategy(userDAO) {
             },
             async (accessToken, refreshToken, profile, done) => {
                 try {
-                    const existingUser = await userDAO.getUser({ googleId: profile.id });
+                    const existingUser = await usersDAO.getUser({ googleId: profile.id });
                     if (existingUser) {
                         return done(null, existingUser._id);
                     }
                     try {
-                        const newUser = await userDAO.addUser(profile);
+                        const newUser = await usersDAO.addGoogleUser(profile);
                         // console.log({newUser})
                         return done(null, newUser);
                     } catch (err) {
                         console.log("Unable to create new User!")
-                        console.error({err})
+                        console.error(JSON.stringify(err, null, 2))
                         return done(err, null)
                     }
                 } catch(err) {
                     console.log("Unable to query DB!!")
-                    console.error({err})
+                    console.error(JSON.stringify(err, null, 2))
                     return done(err, null)
                 }
             },

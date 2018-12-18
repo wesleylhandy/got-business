@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const compression = require('compression');
 const cors = require('cors');
-const cookieSession = require('cookie-session');
+const expressSession = require('express-session');
 const multer = require('multer');
 const logger = require("morgan");
 const upload = multer();
@@ -46,10 +46,14 @@ app.use(bodyParser.json({ type: "application/vnd.api+json" }));
 
 // for parsing multipart/form-data
 app.use(upload.array()); 
+// trust first proxy
+app.set('trust proxy', 1)
 app.use(
-    cookieSession({
-        maxAge: 30 * 24 * 60 * 60 * 1000,
-        keys: [ process.env.cookieKey ],
+    expressSession({
+        cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 },
+        secret: process.env.SESSION_SECRET,
+        saveUninitialized: false,
+        resave: true
     }),
 );
 app.set('port', port);
@@ -75,14 +79,23 @@ client.connect((err, client) => {
     const UsersDAO = require('./models/users.js');
     const usersDAO = new UsersDAO(db)
 
-    const initGoogleStragegy = require('./utils/passport')
-    initGoogleStragegy(usersDAO)
+    require('./utils/initGoogleStrategy')(usersDAO)
+    require('./utils/initLocalStrategy')(usersDAO)
+
+    passport.serializeUser((user, done) => {
+        done(null, user);
+    });
+
+    passport.deserializeUser(async (userID, done) => {
+        const foundUser = await usersDAO.getUser({id: userID})
+        done(null, foundUser);
+    });
 
     app.use(passport.initialize());
     app.use(passport.session());
 
     require('./controllers/data-controller')(app, licensesDAO);
-    require('./controllers/auth-controller')(app);
+    require('./controllers/auth-controller')(app, usersDAO);
 
     // Listen on port 3000 or assigned port
     server = app.listen(app.get('port'), () =>  console.log(`\nAttention citizens, tune to channel ${app.get('port')}...Express Pokémon evolved.\n`));
