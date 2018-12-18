@@ -1,0 +1,3 @@
+# Got Business? An App for Local Businesses to get busy
+
+This app is for businesses, large and small, in the Virginia Beach area. This app presents a collection of newly established businesses in the Virginia Beach area for you to connect with for future business. There are over two thousands new licenses issued every year. Many new businesses are looking for service providers and communities of professionals to help their business succeed. When using this app, if you have recently applied for a business license with the City of Virginia Beach, your new business contact information is available for others to peruse and contact. If you are an established business owner or service provider, you will find here a long-list of prospective new clients.
