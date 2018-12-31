@@ -44,11 +44,12 @@ class LicensesDAO {
     }
 
     shouldGetNewLicenses(lastUpdate) {
-        const previousTimestamp = moment(lastUpdate)
+        const previousTimestamp = moment(lastUpdate, 'x')
+        // console.log({previousTimestamp, lastUpdate})
         const currentTimestamp = moment()
         const elapsed = currentTimestamp.diff(previousTimestamp, 'days')
         console.log({previousTimestamp: previousTimestamp.format('MMM Do YYYY, hh:mm:ss a'), currentTimestamp: currentTimestamp.format('MMM Do YYYY, hh:mm:ss a'), daysElapsed: elapsed})
-        return elapsed
+        return elapsed > 0
     }
 
     async createIndexes() {
@@ -65,11 +66,11 @@ class LicensesDAO {
         const dateAdded  = moment().format('x')
         //transform record
         let businesses = records.map(record=>{
-            const discoveryDate = moment(record.discovery_date).format('x')
-            const year = moment(discoveryDate).format("YYYY")
+            const discoveryDate = moment(new Date(record.discovery_date))
+            const year = discoveryDate.format("YYYY")
             record.govId = "VB" + year + ("00000" + record.id).slice(-6)
             record.dateAdded = dateAdded
-            record.discovery_date = discoveryDate
+            record.discovery_date = discoveryDate.format("x")
             record.google_verified = false
             delete record.id
             return record
@@ -166,11 +167,17 @@ class LicensesDAO {
         const cursor = await this.collection.find({}).sort({dateAdded: -1}).limit(1)
         try {
             const docs = await cursor.toArray()
-            const lastUpdate = docs[0]
-            this.lastUpdate = lastUpdate
-            if (this.shouldGetNewLicenses(lastUpdate)) {
-                getNewBusinessLicenses(licensesDAO)
-            } 
+            // console.log({docs})
+            // console.log({dateAdded: docs[0].dateAdded})
+            if (docs.length) {
+                const lastUpdate = docs[0].dateAdded
+                this.lastUpdate = lastUpdate
+                if (this.shouldGetNewLicenses(lastUpdate)) {
+                    getNewBusinessLicenses(this)
+                } 
+            } else {
+                getNewBusinessLicenses(this)
+            }
         } catch (err) {
             return { success: false, err }
         }
