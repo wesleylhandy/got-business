@@ -2,8 +2,12 @@
     "name": "got-business",
     "version": "1.0.0",
     "description": "Service to Get, Transform, and Serve restfully business license data for the city of Virginia Beach",
-    "main": "server.js",
+    "main": "server/server.js",
     "scripts": {
+        "client": "parcel ./client/src/index.js",
+        "server": "nodemon ./server/server.js",
+        "dev": "concurrently --raw --kill-others \"npm:server\" \"npm:client\"",
+        "start": "node server/server.js",
         "test": "echo \"Error: no test specified\" && exit 1",
         "stop": "pkill SIGINT GotBusinessServer"
     },
@@ -13,6 +17,7 @@
         "bcrypt": "^3.0.2",
         "body-parser": "^1.18.3",
         "compression": "^1.7.3",
+        "concurrently": "^4.1.0",
         "cookie-parser": "^1.4.3",
         "cookie-session": "^2.0.0-beta.3",
         "cors": "^2.8.5",
