@@ -1,0 +1,13 @@
+{
+    "plugins": [ 
+        ["react-css-modules", {
+        "generateScopedName": "[local]__[hash:base64:5]",
+        "webpackHotModuleReloading": true,
+        "handleMissingStyleName": "warn"
+        }],
+        "transform-object-rest-spread"
+    ],
+    "presets": [
+        ["@babel/preset-env", { "useBuiltIns": true }], "@babel/preset-react"
+    ]
+}
