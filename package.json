@@ -5,6 +5,8 @@
     "main": "server.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "cd .. && node server/server.js",
+        "prestart": "cd ./client && gatsby develop",
         "stop": "pkill SIGINT GotBusinessServer"
     },
     "author": "Wesley L. Handy",

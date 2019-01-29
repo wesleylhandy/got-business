@@ -74,14 +74,14 @@ client.connect((err, client) => {
     const dbName = 'localbusinesses';
     const db = client.db(dbName);
 
-    const LicensesDAO = require('./models/licenses.js');
+    const LicensesDAO = require('../models/licenses.js');
     const licensesDAO = new LicensesDAO(db)
-    const UsersDAO = require('./models/users.js');
+    const UsersDAO = require('../models/users.js');
     const usersDAO = new UsersDAO(db)
 
     // require('./strategies/initLinkedInStrategy')(usersDAO)
-    require('./strategies/initGoogleStrategy')(usersDAO)
-    require('./strategies/initLocalStrategy')(usersDAO)
+    require('../strategies/initGoogleStrategy')(usersDAO)
+    require('../strategies/initLocalStrategy')(usersDAO)
 
     passport.serializeUser((user, done) => {
         done(null, user);
@@ -95,8 +95,8 @@ client.connect((err, client) => {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    require('./controllers/data-controller')(app, licensesDAO);
-    require('./controllers/auth-controller')(app, usersDAO);
+    require('../controllers/data-controller')(app, licensesDAO);
+    require('../controllers/auth-controller')(app, usersDAO);
 
     // Listen on port 3000 or assigned port
     server = app.listen(app.get('port'), () =>  console.log(`\nAttention citizens, tune to channel ${app.get('port')}...Express Pokémon evolved.\n`));
