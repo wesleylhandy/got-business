@@ -1,16 +1,16 @@
 const mongodb = require('mongodb');
+const Model = require('./model');
 const moment = require('moment')
 const getNewBusinessLicenses = require('../utils/get-new-business-licenses')
 
 "use strict";
-class LicensesDAO {
+class LicensesDAO extends Model {
 
-    constructor(db) {
+    constructor(db, collectionName) {
+        super(db, collectionName);
         if (!(this instanceof LicensesDAO)) {
-            return new LicensesDAO(db)
+            return new LicensesDAO(db, collectionName)
         }
-        this.db = db;
-        this.collection = db.collection('licenses');
         this.lastUpdate = 0;
         this.indexes = [ 
             { 
@@ -49,16 +49,6 @@ class LicensesDAO {
         const elapsed = currentTimestamp.diff(previousTimestamp, 'days')
         console.log({previousTimestamp: previousTimestamp.format('MMM Do YYYY, hh:mm:ss a'), currentTimestamp: currentTimestamp.format('MMM Do YYYY, hh:mm:ss a'), daysElapsed: elapsed})
         return elapsed
-    }
-
-    async createIndexes() {
-        try {
-            const result = await this.collection.createIndexes(this.indexes)
-            console.log({ Licenses: { CreateIndexesResult: result } })
-        } catch (err) {
-            console.log("Create Index Error")
-            console.error(JSON.stringify(err, null, 2))
-        }
     }
 
     async insertBusinesses(records){
@@ -116,17 +106,6 @@ class LicensesDAO {
         return { success: true }
     }
 
-    async removeBusiness(record) {
-        try {
-            this.collection.deleteOne({ record })
-        } catch (err) {
-            console.log("Delete One Error")
-            console.error(JSON.stringify(err, null, 2))
-            return { success: false, err}
-        }
-        return { success: true }
-    }
-
     async updateBusiness(record) {
         //needs logic
         return { success: true }
@@ -141,24 +120,6 @@ class LicensesDAO {
             return { success: true, businesses: docs }
         } catch (err) {
             return { success: false, err }
-        }
-    }
-
-    async getAllBusinesses() {
-        const cursor = this.collection.find({});
-        try {
-            const docs = await cursor.toArray()
-            return { success: true, businesses: docs }
-        } catch (err) {
-            return { success: false, err }
-        }
-    }
-    async getBusinessCount(){
-        try {
-            const count = await this.collection.countDocuments({})
-            return count;
-        } catch (err) {
-            throw new Error(err)
         }
     }
 

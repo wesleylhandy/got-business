@@ -1,4 +1,5 @@
 const mongodb = require('mongodb');
+const Model = require('./model');
 const moment = require('moment');
 const bcrypt = require('bcrypt');
 
@@ -62,14 +63,13 @@ class User {
     }
 }
 
-class UsersDAO {
+class UsersDAO extends Model {
 
-    constructor(db) {
+    constructor(db, collectionName) {
+        super(db, collectionName);
         if (!(this instanceof UsersDAO)) {
-            return new UsersDAO(db)
+            return new UsersDAO(db, collectionName)
         }
-        this.db = db;
-        this.collection = db.collection('users');
         this.indexes = [ 
             { 
                 key: { 
@@ -98,16 +98,6 @@ class UsersDAO {
             }
         ]
         this.createIndexes();
-    }
-
-    async createIndexes() {
-        try {
-            const result = await this.collection.createIndexes(this.indexes)
-            console.log({ Users: { CreateIndexesResult: result } })
-        } catch (err) {
-            console.log("Create Index Error")
-            console.error(JSON.stringify(err, null, 2))
-        }
     }
 
     async getUser(query={}) {

@@ -108,7 +108,7 @@ const gracefulShutdown = () => {
     server.close(() => {
         client.close((err)=>{
             if (err) console.error({ err })
-            console.log("Closed out remaining connections.");
+            console.log("Closed out remaining connections.\n");
             process.exit(1)
         });
     });

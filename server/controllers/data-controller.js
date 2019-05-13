@@ -6,7 +6,7 @@ module.exports = (app, licensesDAO) => {
     router.get("/licenses/all", asyncMiddleware( async (req, res, next) => {
        
         try {
-            const { success, businesses, err } = await licensesDAO.getAllBusinesses();
+            const { success, businesses, err } = await licensesDAO.getAll('businesses');
             if (success) {
                 return res.json(businesses)
             }
