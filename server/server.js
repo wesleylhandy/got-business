@@ -75,9 +75,9 @@ client.connect((err, client) => {
     const db = client.db(dbName);
 
     const LicensesDAO = require('../models/licenses.js');
-    const licensesDAO = new LicensesDAO(db)
+    const licensesDAO = new LicensesDAO(db, 'licenses')
     const UsersDAO = require('../models/users.js');
-    const usersDAO = new UsersDAO(db)
+    const usersDAO = new UsersDAO(db, 'users')
 
     // require('./strategies/initLinkedInStrategy')(usersDAO)
     require('../strategies/initGoogleStrategy')(usersDAO)

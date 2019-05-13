@@ -89,9 +89,9 @@ exports.createPages = ({ actions, graphql }) => {
     licenses.forEach(({ node }, index) => {
       const prev = index === 0 ? null : licenses[index - 1].node
       const next = index === licenses.length - 1 ? null : licenses[index + 1].node
-    //   console.log({node})
+      const pathName = `/businesses/${node.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`
       createPage({
-        path: `/businesses/${node.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`,
+        path: pathName,
         component: businessCardTemplate,
         context: {
           prev,

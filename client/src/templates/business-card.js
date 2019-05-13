@@ -109,7 +109,7 @@ export default function Template(props) {
             </PrevLink>
             <BlogLink>
               <Link
-                to="/blog/"
+                to="/businesses/"
                 style={{ textAlign: "center", display: "block" }}
               >
                 All Posts
