@@ -138,7 +138,7 @@ const NavLinks = () => (
   <>
     <Link to="/">Home</Link>
     {/** Add more Nav Links here. Feel free to construct multi-level menu as desired **/}
-    <Link to="/businsses/">Businesses</Link>
+    <Link to="/businesses/">Businesses</Link>
   </>
 )
 

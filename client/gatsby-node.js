@@ -6,13 +6,14 @@ const createCategoryPages = (createPage, edges) => {
   const licenses = {}
 
   edges.forEach(({ node }) => {
-    if (node.trade_name_of_business) {
-      
-        if (!licenses[node.trade_name_of_business]) {
-          licenses[node.trade_name_of_business] = []
-        }
-        licenses[node.trade_name_of_business].push(node)
-
+    if (node.business_classification) {
+        const classifications = node.business_classification.split(" / ");
+        classifications.forEach(classification => {
+            if (!licenses[classification]) {
+            licenses[classification] = []
+            }
+            licenses[classification].push(node)
+        })
     }
   })
 
@@ -48,6 +49,7 @@ exports.createPages = ({ actions, graphql }) => {
     {
       allMongodbLocalbusinessesLicenses(
         sort: { order: ASC, fields: [trade_name_of_business] }
+        limit: 3000
       ) {
         edges {
           node {
@@ -94,6 +96,7 @@ exports.createPages = ({ actions, graphql }) => {
         path: pathName,
         component: businessCardTemplate,
         context: {
+          mongoId: node.mongodb_id,
           prev,
           next,
         },

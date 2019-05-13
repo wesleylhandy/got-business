@@ -98,7 +98,7 @@ function Categories({ licenses, license, category }) {
       <TagList>
         {Object.keys(licenses).map(categoryName => (
           <Li key={categoryName}>
-            <Link to={`/category/${categoryName}`}>{categoryName}</Link>
+            <Link to={`/categories/${categoryName.toLowerCase().replace(/\s/g, "-")}`}>{categoryName}</Link>
           </Li>
         ))}
       </TagList>

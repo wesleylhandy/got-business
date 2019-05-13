@@ -5,10 +5,8 @@ import { graphql, Link } from "gatsby"
 
 import styled from "@emotion/styled"
 import Layout from "../components/Layout"
-import SEO from "../components/Seo"
+import SEO from "../components/SEO/Seo"
 import Sharing from "../components/Sharing"
-
-import "./blog-post.css"
 
 const Card = styled.div`
   max-width: 980px;
@@ -34,14 +32,14 @@ const CardTitle = styled.h1`
   width: 100%:
 `
 
-const CardDate = styled.h2`
-  margin: 0;
-  margin-bottom: 10px;
-  padding: 0;
-  align-self: flex-end;
-  font-size: 24px;
-  width: 100%;
-`
+// const CardDate = styled.h2`
+//   margin: 0;
+//   margin-bottom: 10px;
+//   padding: 0;
+//   align-self: flex-end;
+//   font-size: 24px;
+//   width: 100%;
+// `
 
 const Navigation = styled.div`
   display: -ms-grid;
@@ -89,10 +87,6 @@ export default function Template(props) {
             <CardTitle>{trade_name_of_business}</CardTitle>
             <p>{business_classification}</p>
           </CardHeader>
-          <div
-            className="blog-post-content"
-            dangerouslySetInnerHTML={{ __html: post.html }}
-          />
           <Sharing
             pathName={pathName}
             title={trade_name_of_business}
@@ -130,7 +124,7 @@ export default function Template(props) {
 }
 
 export const pageQuery = graphql`
-  query BusinessByMongoId($id: String!) {
+  query BusinessByMongoId($mongoId: String!) {
     site {
       siteMetadata {
         title
@@ -141,7 +135,7 @@ export const pageQuery = graphql`
         siteUrl
       }
     }
-    mongodbLocalbusinessesLicenses(mongodb_id: { eq: $id}) {
+    mongodbLocalbusinessesLicenses(mongodb_id: { eq: $mongoId}) {
         mongodb_id
         trade_name_of_business
         owner_name_of_business

@@ -1,11 +1,11 @@
 import React from "react"
-import { Link, StaticQuery, graphql } from "gatsby"
+import { StaticQuery, graphql } from "gatsby"
 
 import Layout from "../components/Layout"
 import SEO from "../components/SEO/Seo"
 // import Bio from "../components/Bio"
 // import BlogPostList from "../components/BlogPostList"
-import {PrimaryHeading, SubHeading, TertiaryHeading } from '../components/Headings'
+import {PrimaryHeading, SubHeading } from '../components/Headings'
 // import LinkContainer from '../components/LinkContainer'
 
 const IndexPage = () => (
