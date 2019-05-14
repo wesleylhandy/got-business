@@ -107,9 +107,10 @@ function Categories({ licenses, license, category }) {
           })
           const infoWindow = new window.google.maps.InfoWindow({
             content: `<div>
-              <p>${link.trade_name_of_business}</p>
-              <p>${link.business_mailing_address}, ${link.mailing_city}, ${link.mailing_state}, ${link.mailing_zip_code}</p>
-              <p>${link.business_phone_number}</p>
+              <div>${link.trade_name_of_business}</div>
+              <div>${link.business_mailing_address}, ${link.mailing_city}, ${link.mailing_state}, ${link.mailing_zip_code}</div>
+              <div>${link.business_phone_number}</div>
+              <div>Owned by ${link.owner_name_of_business}</div>
               <span>Double-Click To View More</span>
             </div>`
           })

@@ -1,4 +1,5 @@
 import React from "react"
+import moment from 'moment'
 
 import { FaChevronRight, FaChevronLeft, FaLocationArrow, FaPhone, FaArrowLeft } from "react-icons/fa"
 import { graphql, Link } from "gatsby"
@@ -7,8 +8,8 @@ import styled from "@emotion/styled"
 import Layout from "../components/Layout"
 import SEO from "../components/SEO/Seo"
 import Sharing from "../components/Sharing"
-import {BusinessCardContainer, CategoryContainer} from '../components/Containers'
-import {PrimaryHeading} from '../components/Headings'
+import { BusinessCardContainer, CategoryContainer } from '../components/Containers'
+import { PrimaryHeading } from '../components/Headings'
 
 const GoBack = styled.div`
   margin: 20px 0;
@@ -91,7 +92,8 @@ export default function Template(props) {
 //   console.log({data, pageContext})
   const { 
     mongodbLocalbusinessesLicenses: {
-      trade_name_of_business, 
+      trade_name_of_business,
+      owner_name_of_business, 
       business_classification, 
       business_mailing_address,
       mailing_city,
@@ -99,6 +101,7 @@ export default function Template(props) {
       mailing_zip_code,
       mailing_zip_4,
       business_phone_number,
+      discovery_date,
     }, 
     site 
   } = data
@@ -142,8 +145,22 @@ export default function Template(props) {
             <PrimaryHeading style={{color:"navy"}}>{trade_name_of_business}</PrimaryHeading>
           </CardHeader>
           <CardBody>
-            <CardElement><a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(businessAddress)}&dir_action=navigate`} target="_blank" rel="noopener noreferrer"><FaLocationArrow/>{businessAddress}</a></CardElement>
-            <CardElement><a href={`tel:${business_phone_number}`}><FaPhone/>{business_phone_number}</a></CardElement>
+            <CardElement>
+              <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(businessAddress)}&dir_action=navigate`} target="_blank" rel="noopener noreferrer">
+                <FaLocationArrow/>{businessAddress}
+              </a>
+            </CardElement>
+            <CardElement>
+              <a href={`tel:${business_phone_number}`}>
+                <FaPhone/>{business_phone_number}
+              </a>
+            </CardElement>
+            <CardElement>
+              {`Owned By ${owner_name_of_business}`}
+            </CardElement>
+            <CardElement>
+              {`Founded On ${moment(new Date(parseInt(discovery_date))).format('ddd, MMM Do, YYYY')}`}
+            </CardElement>
             <CategoryContainer>{classifications}</CategoryContainer>
           </CardBody>
           <CardFooter>
