@@ -5,7 +5,7 @@ require("dotenv").config({
 })
 
 const siteUrl =
-  process.env.URL || process.env.DEPLOY_URL || "http://10.100.43.57:8000"
+  process.env.URL || process.env.DEPLOY_URL || "http://localhost:8000"
 
 module.exports = {
   pathPrefix: process.env.CI ? `/${name}` : `/`,
@@ -141,6 +141,13 @@ module.exports = {
     //     }
     //   }
     // },
+    {
+      resolve: `gatsby-plugin-typography`,
+      options: {
+        pathToConfigModule: `src/utils/typography`,
+        omitGoogleFont: false,
+      },
+    },
     `gatsby-plugin-react-helmet`,
     `gatsby-transformer-sharp`,
     `gatsby-plugin-sharp`,

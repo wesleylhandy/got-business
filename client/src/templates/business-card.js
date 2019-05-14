@@ -1,17 +1,21 @@
 import React from "react"
 
-import { FaChevronRight, FaChevronLeft } from "react-icons/fa"
+import { FaChevronRight, FaChevronLeft, FaLocationArrow, FaPhone } from "react-icons/fa"
 import { graphql, Link } from "gatsby"
 
 import styled from "@emotion/styled"
 import Layout from "../components/Layout"
 import SEO from "../components/SEO/Seo"
 import Sharing from "../components/Sharing"
+import {BusinessCardContainer, CategoryContainer} from '../components/Containers'
+import {PrimaryHeading} from '../components/Headings'
 
-const Card = styled.div`
-  max-width: 980px;
-  margin: 0 auto;
-  width: 100%;
+const Card = styled.article`
+  width: calc(100% - 40px);
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
 `
 
 const CardHeader = styled.div`
@@ -19,27 +23,39 @@ const CardHeader = styled.div`
   flex-direction: row;
   justify-content: space-between;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 5px solid #747474;
 `
 
-const CardTitle = styled.h1`
-  font-family: Arial, sans-serif;
-  font-weight: 700;
-  font-style: normal;
-  margin: 0;
-  margin-bottom: 10px;
-  padding: 0;
-  width: 100%:
+const CardBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 20px 0;
+  border-bottom: 5px solid #747474;
 `
 
-// const CardDate = styled.h2`
-//   margin: 0;
-//   margin-bottom: 10px;
-//   padding: 0;
-//   align-self: flex-end;
-//   font-size: 24px;
-//   width: 100%;
-// `
+const CardFooter = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 20px;
+`
+
+const CardElement = styled.div`
+  margin: 20px auto;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  a>svg {
+    margin-right: 5px;
+  }
+`
 
 const Navigation = styled.div`
   display: -ms-grid;
@@ -62,7 +78,19 @@ const NextLink = styled.div`
 export default function Template(props) {
   const { data, pageContext } = props
 //   console.log({data, pageContext})
-  const { mongodbLocalbusinessesLicenses: {trade_name_of_business, business_classification, mailing_city}, site } = data
+  const { 
+    mongodbLocalbusinessesLicenses: {
+      trade_name_of_business, 
+      business_classification, 
+      business_mailing_address,
+      mailing_city,
+      mailing_state,
+      mailing_zip_code,
+      mailing_zip_4,
+      business_phone_number,
+    }, 
+    site 
+  } = data
   const siteTitle = site.siteMetadata.title
   const image = null
   if (image) {
@@ -72,53 +100,71 @@ export default function Template(props) {
   const pathName = `/businesses/${trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`
   const BackIcon = FaChevronLeft
   const ForwardIcon = FaChevronRight
+  const classifications = business_classification.split(" / ").map((classification, ind) => {
+    const category = classification.toLowerCase().replace(/\s/g, "-")
+    return (
+      <Link
+        key={`cat-${ind}`}
+        to={`/categories/${category}`}
+        aria-label={`Display Posts with tagged as ${classification}`}
+      >
+        {classification}
+      </Link>
+    )
+  });
+  const businessAddress = `${business_mailing_address}, ${mailing_city}, ${mailing_state},   ${mailing_zip_code}${mailing_zip_4 ? "-" + mailing_zip_4 : ''}`
   return (
     <Layout {...props} title={siteTitle}>
-      <Card>
+      <BusinessCardContainer>
         <SEO
           title={trade_name_of_business}
-          description={`${trade_name_of_business} is a ${business_classification} in ${mailing_city}`}
+          description={`${trade_name_of_business} is a ${business_classification} classified business in ${mailing_city}`}
           image={image}
           pathname={pathName}
           isBlogPost={false}
         />
-        <article className="blog-post">
+        <Card>
           <CardHeader>
-            <CardTitle>{trade_name_of_business}</CardTitle>
-            <p>{business_classification}</p>
+            <PrimaryHeading style={{color:"navy"}}>{trade_name_of_business}</PrimaryHeading>
           </CardHeader>
-          <Sharing
-            pathName={pathName}
-            title={trade_name_of_business}
-            siteUrl={site.siteMetadata.siteUrl}
-          />
-
-          <Navigation>
-            <PrevLink>
-              {prev && (
-                <Link to={`/businesses/${prev.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>
-                  <BackIcon /> {prev.trade_name_of_business}
-                </Link>
-              )}
-            </PrevLink>
-            <BlogLink>
-              <Link
-                to="/businesses/"
-                style={{ textAlign: "center", display: "block" }}
-              >
-                All Posts
+          <CardBody>
+            <CardElement><a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(businessAddress)}&dir_action=navigate`} target="_blank" rel="noopener noreferrer"><FaLocationArrow/>{businessAddress}</a></CardElement>
+            <CardElement><a href={`tel:${business_phone_number}`}><FaPhone/>{business_phone_number}</a></CardElement>
+            <CategoryContainer>{classifications}</CategoryContainer>
+          </CardBody>
+          <CardFooter>
+            <Sharing
+              pathName={pathName}
+              title={trade_name_of_business}
+              siteUrl={site.siteMetadata.siteUrl}
+            />
+          </CardFooter>
+        </Card>
+        <Navigation>
+          <PrevLink>
+            {prev && (
+              <Link to={`/businesses/${prev.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>
+                <BackIcon /> {prev.trade_name_of_business}
               </Link>
-            </BlogLink>
-            <NextLink>
-              {next && (
-                <Link className="link next" to={`/businesses/${next.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>
-                  {next.trade_name_of_business} <ForwardIcon />
-                </Link>
-              )}
-            </NextLink>
-          </Navigation>
-        </article>
-      </Card>
+            )}
+          </PrevLink>
+          <BlogLink>
+            <Link
+              to="/businesses/"
+              style={{ textAlign: "center", display: "block" }}
+            >
+              All Posts
+            </Link>
+          </BlogLink>
+          <NextLink>
+            {next && (
+              <Link className="link next" to={`/businesses/${next.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>
+                {next.trade_name_of_business} <ForwardIcon />
+              </Link>
+            )}
+          </NextLink>
+        </Navigation>
+      </BusinessCardContainer>
     </Layout>
   )
 }
@@ -150,6 +196,7 @@ export const pageQuery = graphql`
         geocoded_column_zip
         business_mailing_address
         mailing_city
+        mailing_state
         mailing_zip_code
         mailing_zip_4
         business_phone_number

@@ -25,16 +25,16 @@ const createCategoryPages = (createPage, edges) => {
     },
   })
 
-  Object.keys(licenses).forEach(tradeName => {
-    const license = licenses[tradeName]
-    const businessName = tradeName.toLowerCase().replace(/\s/g, "-")
+  Object.keys(licenses).forEach(classification => {
+    const license = licenses[classification]
+    const category = classification.toLowerCase().replace(/\s/g, "-")
     createPage({
-      path: `/categories/${businessName}`,
+      path: `/categories/${category}`,
       component: categoryTemplate,
       context: {
         licenses,
         license,
-        category: businessName,
+        category,
       },
     })
   })
@@ -67,6 +67,7 @@ exports.createPages = ({ actions, graphql }) => {
             geocoded_column_zip
             business_mailing_address
             mailing_city
+            mailing_state
             mailing_zip_code
             mailing_zip_4
             business_phone_number
