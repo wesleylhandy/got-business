@@ -1,6 +1,6 @@
 import React from "react"
 
-import { FaChevronRight, FaChevronLeft, FaLocationArrow, FaPhone } from "react-icons/fa"
+import { FaChevronRight, FaChevronLeft, FaLocationArrow, FaPhone, FaArrowLeft } from "react-icons/fa"
 import { graphql, Link } from "gatsby"
 
 import styled from "@emotion/styled"
@@ -9,6 +9,17 @@ import SEO from "../components/SEO/Seo"
 import Sharing from "../components/Sharing"
 import {BusinessCardContainer, CategoryContainer} from '../components/Containers'
 import {PrimaryHeading} from '../components/Headings'
+
+const GoBack = styled.div`
+  margin: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
+  a>svg {
+    margin-right: 5px;
+  }
+`
 
 const Card = styled.article`
   width: calc(100% - 40px);
@@ -123,6 +134,9 @@ export default function Template(props) {
           pathname={pathName}
           isBlogPost={false}
         />
+        <GoBack>
+          <Link to={props.location.state.prevPath}><FaArrowLeft/>Go Back</Link>
+        </GoBack>
         <Card>
           <CardHeader>
             <PrimaryHeading style={{color:"navy"}}>{trade_name_of_business}</PrimaryHeading>

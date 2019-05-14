@@ -1,37 +1,51 @@
-import React from "react"
-import { Link } from "gatsby"
+import React, { useState } from "react"
+import { Link, navigate } from "gatsby"
 import { FaHome, FaTags } from "react-icons/fa"
+import Map from '../components/Map'
 
 import Layout from "../components/Layout"
 import LinkContainer from "../components/LinkContainer"
-import {PrimaryHeading, SubHeading} from "../components/Headings"
+import { PrimaryHeading, SubHeading } from "../components/Headings"
 import styled from "@emotion/styled"
 
 const Li = styled.li`
   list-style: none;
+  position: relative;
   padding: 10px;
   color: navy;
   transition: color 200ms ease-in-out, text-shadow 200ms ease-in-out;
   a {
     color: navy;
-    text-shadow: 1px 1px transparent;
-    transition: color 200ms ease-in-out, text-shadow 200ms ease-in-out;
+    transition: color 200ms ease-in-out;
   }
   a:hover {
-    color: rgba(0,0,128,.65);
-    text-shadow: 1px 1px #fff;
+    color: #fff;
   }
   &:nth-of-type(even) {
-    background: rgba(30,144,255, .5);
+    background: rgba(30,144,255,.25);
   }
   &:nth-of-type(odd) {
-    background: rgba(145, 145, 145, .5);
+    background: rgba(145, 145, 145,.25);
   }
-  &:nth-of-type(even):hover {
+  &:nth-of-type(even):hover, &:nth-of-type(even).active {
     background: rgba(30,144,255, 1);
   }
-  &:nth-of-type(odd):hover {
+  &:nth-of-type(odd):hover, &:nth-of-type(odd).active {
     background: rgba(145, 145, 145, 1);
+  }
+  &.active {
+    color: #fff;
+  }
+  &:before {
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 0;
+    transform: translateX(-50px) translateY(-50%);
+    text-align: right;
+    width:40px;
+    color: navy;
+    content: "${props=>props.index}"; 
   }
 `
 
@@ -75,20 +89,79 @@ const TagList = styled.ul`
 `
 
 function Categories({ licenses, license, category }) {
+  const [active, setActive] = useState(0)
   const HomeIcon = FaHome
   const TagsIcon = FaTags
   if (category) {
+    const addMarkers = links => map => {
+      links.forEach((link, index) => {
+        const { geocoded_column } = link
+        if (geocoded_column) {
+          const { coordinates } = geocoded_column
+          const marker = new window.google.maps.Marker({
+            map,
+            position: {lat: coordinates[1], lng: coordinates[0]},
+            label: `${index + 1}`,
+            icon: index + 1 === active ? `https://maps.google.com/mapfiles/kml/paddle/ylw-blank.png` : ``,
+            title: link.trade_name_of_business,
+          })
+          const infoWindow = new window.google.maps.InfoWindow({
+            content: `<div>
+              <p>${link.trade_name_of_business}</p>
+              <p>${link.business_mailing_address}, ${link.mailing_city}, ${link.mailing_state}, ${link.mailing_zip_code}</p>
+              <p>${link.business_phone_number}</p>
+              <span>Double-Click To View More</span>
+            </div>`
+          })
+          marker.addListener(`dblclick`, () => {
+            navigate(`/businesses/${link.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`, {
+              state: { 
+                prevPath: window.location.pathname 
+              }
+            })
+          })
+          marker.addListener(`click`, ()=> {
+            infoWindow.open(map, marker)
+            setActive(index + 1)
+          })
+          marker.addListener(`mouseover`, ()=> {
+            infoWindow.open(map, marker)
+            setActive(index + 1)
+          })
+          marker.addListener(`mouseout`, ()=> {
+            infoWindow.close()
+            setActive(0)
+          })
+        }
+      })
+    }
+    
+    const mapProps = {
+      options: {
+        center: { lat: 36.7958618, lng: -76.1530532 },
+        zoom: 11,
+      },
+      onMount: addMarkers(license),
+    }
     return (
       <div>
         <PrimaryHeading>
           {license.length} Businesses{license.length === 1 ? "" : "s"} categorized as {category}
         </PrimaryHeading>
+        <Map {...mapProps}/>
         <ul>
-          {license.map(({ govId, trade_name_of_business, business_phone_number }) => {
+          {license.map(({ govId, trade_name_of_business, business_phone_number }, idx) => {
             return (
-              <Li key={govId}>
+              <Li key={govId} index={idx + 1} className={idx + 1 === active ? "active" : "normal"} onMouseOver={e=>setActive(idx+1)}>
                 <SubHeading>
-                  <Link to={`/businesses/${trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>{trade_name_of_business}</Link>
+                  <Link 
+                    to={`/businesses/${trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}
+                    state={{ 
+                      prevPath: window.location.pathname 
+                    }}
+                  >
+                    {trade_name_of_business}
+                  </Link>
                 </SubHeading>
                 <p><a href={`tel:${business_phone_number}`}>{business_phone_number}</a></p>
               </Li>
