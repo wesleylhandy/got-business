@@ -49,6 +49,16 @@ export function CategoryContainer({children}) {
   )
 }
 
+const Links = styled.div`
+  margin: 20px 0;
+`
+
+export function LinkContainer({children, style = {}}) {
+  return (
+    <Links style={style}>{children}</Links>
+  )
+}
+
 const BusinessCard = styled.div`
   max-width: 980px;
   margin: 0 auto;

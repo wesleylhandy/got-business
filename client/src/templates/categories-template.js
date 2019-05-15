@@ -4,89 +4,9 @@ import { FaHome, FaTags } from "react-icons/fa"
 import Map from '../components/Map'
 
 import Layout from "../components/Layout"
-import LinkContainer from "../components/LinkContainer"
+import { LinkContainer } from "../components/Containers"
 import { PrimaryHeading, SubHeading } from "../components/Headings"
-import styled from "@emotion/styled"
-
-const Li = styled.li`
-  list-style: none;
-  position: relative;
-  padding: 10px;
-  color: navy;
-  transition: color 200ms ease-in-out, text-shadow 200ms ease-in-out;
-  a {
-    color: navy;
-    transition: color 200ms ease-in-out;
-  }
-  a:hover {
-    color: #fff;
-  }
-  &:nth-of-type(even) {
-    background: rgba(30,144,255,.25);
-  }
-  &:nth-of-type(odd) {
-    background: rgba(145, 145, 145,.25);
-  }
-  &:nth-of-type(even):hover, &:nth-of-type(even).active {
-    background: rgba(30,144,255, 1);
-  }
-  &:nth-of-type(odd):hover, &:nth-of-type(odd).active {
-    background: rgba(145, 145, 145, 1);
-  }
-  &.active {
-    color: #fff;
-  }
-  &:before {
-    position: absolute;
-    display: block;
-    top: 50%;
-    left: 0;
-    transform: translateX(-50px) translateY(-50%);
-    text-align: right;
-    width:40px;
-    color: navy;
-    content: "${props=>props.index}"; 
-  }
-`
-
-const TagList = styled.ul`
-  display: flex;
-  flex-direction: row;
-  justify-content: left;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 30px -10px;
-  padding-left: 1.45rem;
-  li {
-    box-sizing: border-box;
-    display: inline;
-    margin: 10px;
-    flex: 0 0 auto;
-    border-radius: 20px;
-    padding: 0;
-    font-weight: 700;
-    transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
-    a {
-      padding: 14px;
-      display: block;
-      width: 100%;
-      text-decoration:none;
-    }
-    a:hover {
-      text-shadow: none;
-      color: #fff;
-    }
-  }
-  li:hover {
-    color: #fff;
-  }
-  li:nth-of-type(even):hover {
-    background: rgba(30,144,255,1);
-  }
-  li:nth-of-type(odd):hover {
-    background: rgba(145, 145, 145, 1);
-  }
-`
+import { CategoryListItem, CategoryListButtons } from "../components/Categories"
 
 function Categories({ licenses, license, category }) {
   const [active, setActive] = useState(0)
@@ -153,7 +73,7 @@ function Categories({ licenses, license, category }) {
         <ul>
           {license.map(({ govId, trade_name_of_business, business_phone_number }, idx) => {
             return (
-              <Li key={govId} index={idx + 1} className={idx + 1 === active ? "active" : "normal"} onMouseOver={e=>setActive(idx+1)}>
+              <CategoryListItem key={govId} index={idx + 1} className={idx + 1 === active ? "active" : "normal"} onMouseOver={e=>setActive(idx+1)}>
                 <SubHeading>
                   <Link 
                     to={`/businesses/${trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}
@@ -165,7 +85,7 @@ function Categories({ licenses, license, category }) {
                   </Link>
                 </SubHeading>
                 <p><a href={`tel:${business_phone_number}`}>{business_phone_number}</a></p>
-              </Li>
+              </CategoryListItem>
             )
           })}
         </ul>
@@ -185,13 +105,13 @@ function Categories({ licenses, license, category }) {
   return (
     <div>
       <PrimaryHeading>Categories</PrimaryHeading>
-      <TagList>
+      <CategoryListButtons>
         {Object.keys(licenses).map(categoryName => (
-          <Li key={categoryName}>
+          <CategoryListItem key={categoryName}>
             <Link to={`/categories/${categoryName.toLowerCase().replace(/\s/g, "-")}`}>{categoryName}</Link>
-          </Li>
+          </CategoryListItem>
         ))}
-      </TagList>
+      </CategoryListButtons>
       <LinkContainer>
         <Link to="/businesses/">
           <HomeIcon /> All Businesses

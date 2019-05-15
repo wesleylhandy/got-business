@@ -10,17 +10,7 @@ import SEO from "../components/SEO/Seo"
 import Sharing from "../components/Sharing"
 import { BusinessCardContainer, CategoryContainer } from '../components/Containers'
 import { PrimaryHeading } from '../components/Headings'
-
-const GoBack = styled.div`
-  margin: 20px 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-direction: row;
-  a>svg {
-    margin-right: 5px;
-  }
-`
+import { GoBack, Navigation, PrevLink, HomeLink, NextLink } from '../components/InnerNavigation'
 
 const Card = styled.article`
   width: calc(100% - 40px);
@@ -67,24 +57,6 @@ const CardElement = styled.div`
   a>svg {
     margin-right: 5px;
   }
-`
-
-const Navigation = styled.div`
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: 1fr 1fr 1fr;
-  grid-template-columns: repeat(3, 1fr);
-  margin-bottom: 20px;
-`
-const PrevLink = styled.div`
-  text-align: left;
-`
-const BlogLink = styled.div`
-  text-align: center;
-`
-
-const NextLink = styled.div`
-  text-align: right;
 `
 
 export default function Template(props) {
@@ -179,14 +151,14 @@ export default function Template(props) {
               </Link>
             )}
           </PrevLink>
-          <BlogLink>
+          <HomeLink>
             <Link
               to="/businesses/"
               style={{ textAlign: "center", display: "block" }}
             >
               All Posts
             </Link>
-          </BlogLink>
+          </HomeLink>
           <NextLink>
             {next && (
               <Link className="link next" to={`/businesses/${next.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>
@@ -218,7 +190,7 @@ export const pageQuery = graphql`
         owner_name_of_business
         google_verified
         geocoded_column {
-					type
+				  type
           coordinates
         }
         geocoded_column_address

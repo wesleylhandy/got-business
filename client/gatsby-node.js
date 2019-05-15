@@ -1,19 +1,65 @@
 const path = require("path")
 const { createFilePath } = require(`gatsby-source-filesystem`)
 
+const createBusinessPages = (createPage, edges) => {
+  const businessListTemplate = path.resolve(`src/templates/business-list.js`)
+
+  const lettersArr = '*ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split("");
+  const businesses = {};
+
+  edges.forEach(({ node }) => {
+    const initial = node.trade_name_of_business.trim().slice(0,1);
+    const alpha = lettersArr.includes(initial.toUpperCase()) ? initial.toUpperCase() : "*"
+    if (!businesses[alpha]) {
+      businesses[alpha] = []
+    }
+    businesses[alpha].push(node)
+  })
+
+  createPage({
+    path: "/businesses",
+    component: businessListTemplate,
+    context: {
+      businesses,
+    },
+  })
+  // console.log({businesses, keys: Object.keys(businesses)})
+  const businessesPerPage = 10;
+  Object.keys(businesses).forEach(letter => {
+    const businessList = businesses[letter]
+    const numPages = Math.ceil(businessList.length / businessesPerPage)
+    const regx = /[^A-z]/.test(letter) ? "/^[^A-z].*/i" : `/^(${letter}).*/i`
+    for (let idx = 0; idx < numPages; idx++) {
+      // console.log({letter, numPages, regx, idx: idx + 1})
+      createPage({
+        path: `/businesses-by-letter/${letter}-${idx + 1}`,
+        component: businessListTemplate,
+        context: {
+          limit: businessesPerPage,
+          skip: idx * businessesPerPage,
+          numPages,
+          currentPage: idx + 1,
+          regx,
+          letter,
+        },
+      })
+    }
+  })
+}
+
 const createCategoryPages = (createPage, edges) => {
-  const categoryTemplate = path.resolve(`src/templates/categories.js`)
+  const categoryTemplate = path.resolve(`src/templates/categories-template.js`)
   const licenses = {}
 
   edges.forEach(({ node }) => {
     if (node.business_classification) {
-        const classifications = node.business_classification.split(" / ");
-        classifications.forEach(classification => {
-            if (!licenses[classification]) {
-            licenses[classification] = []
-            }
-            licenses[classification].push(node)
-        })
+      const classifications = node.business_classification.split(" / ");
+      classifications.forEach(classification => {
+        if (!licenses[classification]) {
+          licenses[classification] = []
+        }
+        licenses[classification].push(node)
+      })
     }
   })
 
@@ -49,7 +95,7 @@ exports.createPages = ({ actions, graphql }) => {
     {
       allMongodbLocalbusinessesLicenses(
         sort: { order: ASC, fields: [trade_name_of_business] }
-        limit: 3000
+        limit: 100
       ) {
         edges {
           node {
@@ -87,6 +133,7 @@ exports.createPages = ({ actions, graphql }) => {
     const licenses = result.data.allMongodbLocalbusinessesLicenses.edges
 
     createCategoryPages(createPage, licenses)
+    createBusinessPages(createPage, licenses)
 
     // Create pages for each markdown file.
     licenses.forEach(({ node }, index) => {
