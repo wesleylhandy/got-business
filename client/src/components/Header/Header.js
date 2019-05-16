@@ -52,7 +52,7 @@ const Navigation = styled.nav`
     text-align: center;
   }
   a:hover {
-    background-color: dodgerblue;
+    background-color: navy;
     color: white;
   }
   @media screen and (max-width: ${menuBreakPoint}) {
@@ -156,6 +156,7 @@ const Header = ({ siteTitle }) => {
               id="dropcheck"
               name="dropcheck"
               type="checkbox"
+              aria-label={checked ? "Click to Hide Menu" : "Click to Show Menu" }
               onClick={() => setCheck(!checked)}
             />
             <DropDownIcon htmlFor="dropcheck">

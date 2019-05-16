@@ -21,11 +21,13 @@ const typography = new Typography({
     }
   ],
   baseFontSize: "19px",
-  baseLineHeight: 1.5,
+  baseLineHeight: '1.5',
   headerFontFamily: ['Bungee Shade', 'cursive'],
   headerWeight: '400',
+  headerColor: 'navy',
   bodyWeight: 'normal',
-  bodyFontFamily: ['Open Sans', 'Arial', 'sans-serif']
+  bodyFontFamily: ['Open Sans', 'Arial', 'sans-serif'],
+  bodyColor: 'navy',
 })
 
 export const { scale, rhythm, options } = typography

@@ -79,3 +79,15 @@ export const CategoryListButtons = styled.ul`
     background: rgba(145, 145, 145, 1);
   }
 `
+
+export const CategoryAlpaLinks = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 20px -10px;
+  a {
+    margin: 10px;
+  }
+`

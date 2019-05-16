@@ -118,7 +118,7 @@ const Layout = ({ children }) => (
                   text-shadow 200ms ease-in-out;
               }
               a[href^="/"]:hover {
-                color: #919191;
+                color: dodgerblue;
               }
               a[href*="http"]:hover,
               a[href*="mailto"]:hover,

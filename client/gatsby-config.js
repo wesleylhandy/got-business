@@ -11,33 +11,41 @@ module.exports = {
   pathPrefix: process.env.CI ? `/${name}` : `/`,
   siteMetadata: { // initialize site metadata for SEO
     title: `Got Business?`,
-    description: ``,
+    description: `An App for Connecting with Newly Established Businesses in Your Area`,
     author: {
         name: `Wesley L. Handy`, 
     }, 
     siteUrl,
     siteVerification: ``,
     social: { //usernames for SEO
-      twitter: "",
-      linkedin: ""
+      twitter: "wesleylhandy",
+      linkedin: "wesleylhandy"
     },
     socialLinks: { // profile URLS for social links, include https://
-        twitter: "",
-        linkedin: "",
+        twitter: "https://twitter.com/WesleyLHandy",
+        linkedin: "https://www.linkedin.com/in/wesleylhandy/",
         facebook: "",
-        stackOverflow: "",
-        github: "",
+        stackOverflow: "https://stackoverflow.com/users/6917743/wlh",
+        github: "https://github.com/wesleylhandy",
         instagram: "",
         youtube: "",
-        email: "", //include mailto:
-        phone: "" //include tel:
+        email: "mailto:wesley@wearecreativ.media", //include mailto:
+        phone: "tel:9195543504" //include tel:
     },
     keywords: [
+      "Gatsby",
+      "Infinite Scroll",
+      "MongoDB",
+      "gatsby-source-mongodb",
+      "Virginia Beach Business Licenses",
+      "local business",
+      "who owns this business"
     ],
     organization: { //update with relevant personal data
-      name: "", 
-      url: ""
-    }
+      name: "Wesley L. Handy", 
+      url: "https://www.wesleylhandy.net"
+    },
+    lang: "en"
   },
   plugins: [
     `gatsby-plugin-sitemap`,

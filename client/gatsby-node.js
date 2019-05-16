@@ -2,7 +2,8 @@ const path = require("path")
 const { createFilePath } = require(`gatsby-source-filesystem`)
 
 const createBusinessPages = (createPage, edges) => {
-  const businessListTemplate = path.resolve(`src/templates/business-list.js`)
+  const paginatedBusinessListTemplate = path.resolve(`src/templates/paginated-business-list.js`)
+  const infiniteBusinessListTemplate = path.resolve(`src/templates/infinite-business-list.js`)
 
   const lettersArr = '*ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split("");
   const businesses = {};
@@ -18,22 +19,23 @@ const createBusinessPages = (createPage, edges) => {
 
   createPage({
     path: "/businesses",
-    component: businessListTemplate,
+    component: infiniteBusinessListTemplate,
     context: {
-      businesses,
+      businessList: edges,
+      regx: "/(businesses-by-letter)/"
     },
   })
   // console.log({businesses, keys: Object.keys(businesses)})
   const businessesPerPage = 10;
   Object.keys(businesses).forEach(letter => {
-    const businessList = businesses[letter]
-    const numPages = Math.ceil(businessList.length / businessesPerPage)
+    const listLength = businesses[letter].length
+    const numPages = Math.ceil(listLength / businessesPerPage)
     const regx = /[^A-z]/.test(letter) ? "/^[^A-z].*/i" : `/^(${letter}).*/i`
     for (let idx = 0; idx < numPages; idx++) {
       // console.log({letter, numPages, regx, idx: idx + 1})
       createPage({
         path: `/businesses-by-letter/${letter}-${idx + 1}`,
-        component: businessListTemplate,
+        component: paginatedBusinessListTemplate,
         context: {
           limit: businessesPerPage,
           skip: idx * businessesPerPage,
@@ -95,7 +97,7 @@ exports.createPages = ({ actions, graphql }) => {
     {
       allMongodbLocalbusinessesLicenses(
         sort: { order: ASC, fields: [trade_name_of_business] }
-        limit: 100
+        limit: 3000
       ) {
         edges {
           node {

@@ -2,10 +2,9 @@ import React, { useState } from "react"
 import { Link, navigate, graphql } from "gatsby"
 import { FaHome, FaTags, FaArrowLeft, FaChevronRight, FaChevronLeft } from "react-icons/fa"
 import Map from '../components/Map'
-
 import Layout from "../components/Layout"
 import { LinkContainer } from "../components/Containers"
-import { PrimaryHeading, SubHeading } from "../components/Headings"
+import { SubHeading, QuartenaryHeading } from "../components/Headings"
 import { CategoryListItem } from "../components/Categories"
 import { GoBack, Navigation, PrevLink, HomeLink, NextLink } from '../components/InnerNavigation'
 
@@ -14,12 +13,12 @@ function Businesses({data, pageContext, location}){
   const TagsIcon = FaTags
   const BackIcon = FaChevronLeft
   const ForwardIcon = FaChevronRight
+  const [active, setActive] = useState(0)
   if (data && data.allMongodbLocalbusinessesLicenses) {
     const { 
       allMongodbLocalbusinessesLicenses: {
         edges
-      },
-      site,
+      }
     } = data
     const {
         currentPage,
@@ -29,7 +28,6 @@ function Businesses({data, pageContext, location}){
     const next = currentPage < numPages ? { to: `/businesses-by-letter/${letter}-${currentPage + 1}`, page: `${letter}-${currentPage + 1}` } : null
     const prev = currentPage > 1 ? { to: `/businesses-by-letter/${letter}-${currentPage - 1}`, page: `${letter}-${currentPage - 1}` } : null
     const businessList = edges;
-    const [active, setActive] = useState(0)
     const addMarkers = links => map => {
       links.forEach(({node}, index) => {
         const { geocoded_column } = node
@@ -89,6 +87,7 @@ function Businesses({data, pageContext, location}){
             </GoBack>
           )
         }
+        <QuartenaryHeading style={{textAlign: "center", fontFamily: "'Open Sans', Arial, sans-serif", fontWeight: "700"}}>{`Page ${currentPage} of ${numPages} for businesses starting with ${/[^A-z]/.test(letter) ? "symbols or numbers" : "the letter " + letter}`}</QuartenaryHeading>
         <Navigation>
           <PrevLink>
             {prev && (
@@ -102,7 +101,7 @@ function Businesses({data, pageContext, location}){
               to="/businesses/"
               style={{ textAlign: "center", display: "block" }}
             >
-              All Posts
+              All Businesses
             </Link>
           </HomeLink>
           <NextLink>
@@ -148,7 +147,7 @@ function Businesses({data, pageContext, location}){
               to="/businesses/"
               style={{ textAlign: "center", display: "block" }}
             >
-              All Posts
+              All Businesses
             </Link>
           </HomeLink>
           <NextLink>
@@ -172,11 +171,13 @@ function Businesses({data, pageContext, location}){
       </div>
     )
   } else {
-    return null
+    return (
+      <div>No Businesses Found!</div>
+    )
   }
 }
 
-export default function BusinessesListTemplate(props) {
+export default function PaginatedBusinessesListTemplate(props) {
     return (
       <Layout {...props}>
         <Businesses {...props}/>
