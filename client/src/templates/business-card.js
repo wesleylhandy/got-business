@@ -60,7 +60,7 @@ const CardElement = styled.div`
 `
 
 export default function Template(props) {
-  const { data, pageContext } = props
+  const { data, pageContext, location } = props
 //   console.log({data, pageContext})
   const { 
     mongodbLocalbusinessesLicenses: {
@@ -109,9 +109,13 @@ export default function Template(props) {
           pathname={pathName}
           isBlogPost={false}
         />
-        <GoBack>
-          <Link to={props.location.state.prevPath}><FaArrowLeft/>Go Back</Link>
-        </GoBack>
+        {
+          location && location.state && location.state.prevPath && (
+            <GoBack>
+              <Link to={location.state.prevPath}><FaArrowLeft/>Go Back</Link>
+            </GoBack>
+          )
+        }
         <Card>
           <CardHeader>
             <PrimaryHeading style={{color:"navy"}}>{trade_name_of_business}</PrimaryHeading>
@@ -146,7 +150,7 @@ export default function Template(props) {
         <Navigation>
           <PrevLink>
             {prev && (
-              <Link to={`/businesses/${prev.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>
+              <Link to={`/businesses/${prev.trade_name_of_business.toLowerCase().replace(/\s/g, "-").replace(/[\?#]/g, "")}`}>
                 <BackIcon /> {prev.trade_name_of_business}
               </Link>
             )}
@@ -161,7 +165,7 @@ export default function Template(props) {
           </HomeLink>
           <NextLink>
             {next && (
-              <Link className="link next" to={`/businesses/${next.trade_name_of_business.toLowerCase().replace(/\s/g, "-")}`}>
+              <Link className="link next" to={`/businesses/${next.trade_name_of_business.toLowerCase().replace(/\s/g, "-").replace(/[\?#]/g, "")}`}>
                 {next.trade_name_of_business} <ForwardIcon />
               </Link>
             )}
