@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Link } from "gatsby"
+import { Link, graphql } from "gatsby"
 import { FaTags  } from "react-icons/fa"
 import Layout from "../components/layout"
 import { LinkContainer } from "../components/Containers"
@@ -42,17 +42,34 @@ function Businesses({ data, pageContext }) {
     }
   }
 
+  const is_touch_device = () => {
+    const isTouch = (window 
+      && (('ontouchstart' in window)
+      || (window.DocumentTouch && document instanceof window.DocumentTouch)
+      || (navigator.msMaxTouchPoints > 0)));
+    // console.log({isTouch})
+    return isTouch;
+  }
+
   const handleScroll = () => {
     if ( isLoading || !hasMore ) return;
     if ( window && ( window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight ) ){
       initLoadBusinesses(loadBusinesses);
     }
   }
+
+  const handleTouchEnd = (e) => {
+    e.preventDefault(); 
+    handleScroll();
+  }
   
   useEffect(() => {
+    is_touch_device();
+    window && window.addEventListener('touchend', handleTouchEnd)
     window && window.addEventListener('scroll', handleScroll)
     window && window.addEventListener('resize', handleScroll)
     return () => {
+      window && window.removeEventListener('touchend', handleTouchEnd)
       window && window.removeEventListener('scroll', handleScroll)
       window && window.removeEventListener('resize', handleScroll)
     };
